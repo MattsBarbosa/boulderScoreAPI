@@ -1,0 +1,13 @@
+package com.mattsbarbosa.boulderScoreAPI.entities;
+
+public enum Categorias {
+    INFANTILFEMININO,
+    INFANTILMASCULINO,
+    JUVENILFEMININO,
+    JUVENILMASCULINO,
+    AMADORFEMININO,
+    AMADORMASCULINO,
+    PRINCIPALFEMININO,
+    PRINCIPALMASCULINO,
+    SENIOR;
+}
