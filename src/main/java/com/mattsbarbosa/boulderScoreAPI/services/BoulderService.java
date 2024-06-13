@@ -2,17 +2,18 @@ package com.mattsbarbosa.boulderScoreAPI.services;
 
 import com.mattsbarbosa.boulderScoreAPI.dtos.BoulderDto;
 
-import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public interface BoulderService {
 
     BoulderDto criarBoulder(BoulderDto boulderDto);
 
-    BoulderDto pegarBoulderPorId(Long boulderId);
+    BoulderDto pegarBoulderPorId(UUID boulderId);
 
-    List<BoulderDto> pegarTodosBoulders();
+    Set<BoulderDto> pegarTodosBoulders();
 
-    BoulderDto atualizarBoulder(Long boulderId, BoulderDto boulderAtualizado);
+    BoulderDto atualizarBoulder(UUID boulderId, BoulderDto boulderAtualizado);
 
-    void deletaBoulder(Long boulderId);
+    void deletaBoulder(UUID boulderId);
 }

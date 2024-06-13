@@ -1,7 +1,10 @@
 package com.mattsbarbosa.boulderScoreAPI.mappers;
 
 import com.mattsbarbosa.boulderScoreAPI.dtos.BoulderDto;
+import com.mattsbarbosa.boulderScoreAPI.entities.Atleta;
 import com.mattsbarbosa.boulderScoreAPI.entities.Boulder;
+
+import java.util.stream.Collectors;
 
 public class BoulderMapper {
 
@@ -9,17 +12,11 @@ public class BoulderMapper {
         return new BoulderDto(
                 boulder.getId(),
                 boulder.getNumero(),
-                boulder.getPontuacao(),
-                boulder.getTentativas()
-        );
-    }
-
-    public static Boulder mapParaBoulder(BoulderDto boulderDto){
-        return new Boulder(
-                boulderDto.getId(),
-                boulderDto.getNumero(),
-                boulderDto.getPontuacao(),
-                boulderDto.getTentativas()
+                boulder.getAtletas().stream().map(Atleta::getId).collect(Collectors.toSet()),
+                boulder.getTentativas(),
+                boulder.getPontuacaoPrimeiraTentativa(),
+                boulder.getPontuacaoSegundaTentativa(),
+                boulder.getPontuacaoPadrao()
         );
     }
 }

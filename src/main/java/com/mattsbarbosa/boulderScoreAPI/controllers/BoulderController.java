@@ -3,15 +3,18 @@ package com.mattsbarbosa.boulderScoreAPI.controllers;
 import com.mattsbarbosa.boulderScoreAPI.dtos.BoulderDto;
 import com.mattsbarbosa.boulderScoreAPI.services.BoulderService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @CrossOrigin("*")
 @AllArgsConstructor
 @RestController
+@Slf4j
 @RequestMapping("/api/boulders")
 public class BoulderController {
 
@@ -24,26 +27,26 @@ public class BoulderController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<BoulderDto> pegarBoulderPorId(@PathVariable("id") Long boulderId){
+    public ResponseEntity<BoulderDto> pegarBoulderPorId(@PathVariable("id") UUID boulderId){
         BoulderDto boulderDto = boulderService.pegarBoulderPorId(boulderId);
         return ResponseEntity.ok(boulderDto);
     }
 
     @GetMapping
-    public ResponseEntity<List<BoulderDto>> pegarTodosBoulders(){
-        List<BoulderDto> listaBoulders = boulderService.pegarTodosBoulders();
+    public ResponseEntity<Set<BoulderDto>> pegarTodosBoulders(){
+        Set<BoulderDto> listaBoulders = boulderService.pegarTodosBoulders();
         return ResponseEntity.ok(listaBoulders);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<BoulderDto> atualizarBoulder(@PathVariable("id") Long boulderId,
+    public ResponseEntity<BoulderDto> atualizarBoulder(@PathVariable("id") UUID boulderId,
                                                        @RequestBody BoulderDto boulderAtualizado){
         BoulderDto boulderDto = boulderService.atualizarBoulder(boulderId, boulderAtualizado);
         return ResponseEntity.ok(boulderDto);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deletarBoulder(@PathVariable("id") Long boulderId){
+    public ResponseEntity<String> deletarBoulder(@PathVariable("id") UUID boulderId){
         boulderService.deletaBoulder(boulderId);
         return ResponseEntity.ok("Boulder deletado com Sucesso");
     }
