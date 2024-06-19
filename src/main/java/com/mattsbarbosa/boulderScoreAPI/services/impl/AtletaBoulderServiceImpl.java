@@ -1,8 +1,6 @@
 package com.mattsbarbosa.boulderScoreAPI.services.impl;
 
 import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaBoulderDTO;
-import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
-import com.mattsbarbosa.boulderScoreAPI.dtos.BoulderDTO;
 import com.mattsbarbosa.boulderScoreAPI.entities.Atleta;
 import com.mattsbarbosa.boulderScoreAPI.entities.AtletaBoulder;
 import com.mattsbarbosa.boulderScoreAPI.entities.Boulder;
