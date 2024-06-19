@@ -1,15 +1,12 @@
 package com.mattsbarbosa.boulderScoreAPI.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @Setter
@@ -29,20 +26,13 @@ public class Atleta {
     @Column(name = "numero")
     private Integer numero;
 
-    @Column(name = "pontuacao_total")
+    @Column(name = "pontuacao_total", nullable = false)
     private Double pontuacaoTotal = 0.0;
 
     @Column(name = "categoria")
     private String categoria;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "tb_boulder_atleta",
-            joinColumns = @JoinColumn(name = "boulder_id"),
-            inverseJoinColumns = @JoinColumn(name = "atleta_id"))
-    private Set<Boulder> boulders = new HashSet<>();
-
-
+    @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AtletaBoulder> atletaBoulders = new ArrayList<>();
 
 }

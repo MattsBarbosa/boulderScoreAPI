@@ -1,20 +1,20 @@
 package com.mattsbarbosa.boulderScoreAPI.services;
 
-import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDto;
+import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public interface AtletaService {
 
-    AtletaDto criarAtleta(AtletaDto atletaDto);
+    AtletaDTO saveAtleta(AtletaDTO atletaDTO);
 
-    AtletaDto pegarAtletaPorId(UUID atletaId);
+    AtletaDTO getAtletaById(UUID atletaId);
 
-    Set<AtletaDto> pegarTodosAtletas();
+    List<AtletaDTO> getAllAtletas();
 
-    AtletaDto atualizarAtleta(UUID atletaId, AtletaDto atletaAtualizado);
+    AtletaDTO updateAtleta(UUID atletaId, AtletaDTO atletaAtualizado);
 
-    void deletaAtleta(UUID atletaId);
+    void deleteAtleta(UUID atletaId);
 
 }

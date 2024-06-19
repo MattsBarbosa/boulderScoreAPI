@@ -1,18 +1,16 @@
 package com.mattsbarbosa.boulderScoreAPI.services.impl;
 
-import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDto;
+import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
 import com.mattsbarbosa.boulderScoreAPI.entities.Atleta;
 import com.mattsbarbosa.boulderScoreAPI.exception.ResourceNotFoundException;
-import com.mattsbarbosa.boulderScoreAPI.mappers.AtletaMapper;
+import com.mattsbarbosa.boulderScoreAPI.mappers.CompetitionMapper;
 import com.mattsbarbosa.boulderScoreAPI.repositories.AtletaRepository;
-import com.mattsbarbosa.boulderScoreAPI.repositories.BoulderRepository;
 import com.mattsbarbosa.boulderScoreAPI.services.AtletaService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,55 +19,57 @@ import java.util.stream.Collectors;
 public class AtletaServiceImpl implements AtletaService {
 
     private final AtletaRepository atletaRepository;
-    private final BoulderRepository boulderRepository;
+    private final CompetitionMapper competitionMapper;
 
     @Override
     @Transactional
-    public AtletaDto criarAtleta(AtletaDto atletaDto) {
+    public AtletaDTO saveAtleta(AtletaDTO atletaDTO) {
 
         Atleta atleta = new Atleta();
-        atleta.setNome(atletaDto.nome());
-        atleta.setNumero(atletaDto.numero());
-        atleta.setCategoria(atletaDto.categoria());
-        atleta.setPontuacaoTotal(atletaDto.pontuacaoTotal());
-        atleta.setBoulders(boulderRepository.findAll().stream().collect(Collectors.toSet()));
+        atleta.setNome(atletaDTO.getNome());
+        atleta.setNumero(atletaDTO.getNumero());
+        atleta.setCategoria(atletaDTO.getCategoria());
+        atleta.setPontuacaoTotal(atletaDTO.getPontuacaoTotal());
 
         Atleta atletaSalvo = atletaRepository.save(atleta);
-        return AtletaMapper.mapParaAtletaDto(atletaSalvo);
+        return competitionMapper.toAtletaDTO(atletaSalvo);
     }
 
     @Override
-    public AtletaDto pegarAtletaPorId(UUID atletaId) {
+    public AtletaDTO getAtletaById(UUID atletaId) {
         Atleta atleta = atletaRepository.findById(atletaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
 
-        return AtletaMapper.mapParaAtletaDto(atleta);
+        return competitionMapper.toAtletaDTO(atleta);
     }
 
     @Override
-    public Set<AtletaDto> pegarTodosAtletas() {
-        List<Atleta> atletas = atletaRepository.findAll();
-        return atletas.stream().map(AtletaMapper::mapParaAtletaDto)
-                .collect(Collectors.toSet());
+    public List<AtletaDTO> getAllAtletas() {
+        return atletaRepository.findAll()
+                .stream()
+                .map(competitionMapper::toAtletaDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public AtletaDto atualizarAtleta(UUID atletaId, AtletaDto atletaAtualizado) {
+    @Transactional
+    public AtletaDTO updateAtleta(UUID atletaId, AtletaDTO atletaAtualizado) {
         Atleta atleta = atletaRepository.findById(atletaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
 
-        atleta.setNome(atletaAtualizado.nome());
-        atleta.setNumero(atletaAtualizado.numero());
-        atleta.setCategoria(atletaAtualizado.categoria());
-        atleta.setPontuacaoTotal(atletaAtualizado.pontuacaoTotal());
+        atleta.setNome(atletaAtualizado.getNome());
+        atleta.setNumero(atletaAtualizado.getNumero());
+        atleta.setCategoria(atletaAtualizado.getCategoria());
+        atleta.setPontuacaoTotal(atletaAtualizado.getPontuacaoTotal());
 
         var atletaAtualizadoSalvo = atletaRepository.save(atleta);
 
-        return AtletaMapper.mapParaAtletaDto(atletaAtualizadoSalvo);
+        return competitionMapper.toAtletaDTO(atletaAtualizadoSalvo);
     }
 
     @Override
-    public void deletaAtleta(UUID atletaId) {
+    @Transactional
+    public void deleteAtleta(UUID atletaId) {
         Atleta atleta = atletaRepository.findById(atletaId).orElseThrow(
                 () -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
 
