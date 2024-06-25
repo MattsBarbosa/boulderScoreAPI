@@ -45,6 +45,17 @@ public class AtletaBoulderServiceImpl implements AtletaBoulderService {
     }
 
     @Override
+    public Double calculateScore(Boulder boulder, Integer tries) {
+        if (tries == 1) {
+            return boulder.getPontuacaoPrimeiraTentativa();
+        }else if (tries == 2) {
+            return boulder.getPontuacaoSegundaTentativa();
+        }else {
+            return boulder.getPontuacaoPadrao();
+        }
+    }
+
+    @Override
     @Transactional
     public void recordSend(UUID atletaBoulderId) {
         AtletaBoulder atletaBoulder = atletaBoulderRepository.findById(atletaBoulderId)
@@ -56,24 +67,14 @@ public class AtletaBoulderServiceImpl implements AtletaBoulderService {
         Boulder boulder = boulderRepository.findById(atletaBoulder.getBoulder().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Boulder não encontrado"));
 
+        atletaBoulder.setTentativas(atletaBoulder.getTentativas() + 1);
         Double score = calculateScore(boulder, atletaBoulder.getTentativas());
 
         atletaBoulder.setEncadenado(true);
         atletaBoulder.setPontuacao(score);
         atletaBoulderRepository.save(atletaBoulder);
 
-        atleta.setPontuacaoTotal(atleta.getPontuacaoTotal() + atletaBoulder.getPontuacao());
+        atleta.setPontuacaoTotal(atleta.getPontuacaoTotal() + score);
         atletaRepository.save(atleta);
-    }
-
-    @Override
-    public Double calculateScore(Boulder boulder, Integer tries) {
-        if (tries == 1) {
-            return boulder.getPontuacaoPrimeiraTentativa();
-        }else if (tries == 2) {
-            return boulder.getPontuacaoSegundaTentativa();
-        }else {
-            return boulder.getPontuacaoPadrao();
-        }
     }
 }
