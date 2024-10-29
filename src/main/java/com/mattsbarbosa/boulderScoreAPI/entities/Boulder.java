@@ -13,22 +13,23 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "TB_BOULDERS")
+@Table(name = "BOULDERS")
 public class Boulder {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "numero")
+    @Column(nullable = false, unique = true)
     private Integer numero;
 
-    @Column(name = "primeira_tentativa")
+    @Column(nullable = false)
     private Double pontuacaoPrimeiraTentativa;
 
-    @Column(name = "segunda_tentativa")
+    @Column(nullable = false)
     private Double pontuacaoSegundaTentativa;
 
-    @Column(name = "pontuacao_padrao")
+    @Column(nullable = false)
     private Double pontuacaoPadrao;
 
     @OneToMany(mappedBy = "boulder", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -6,7 +6,7 @@ import com.mattsbarbosa.boulderScoreAPI.entities.Boulder;
 import java.util.List;
 import java.util.UUID;
 
-public interface AtletaBoulderService {
+public interface IAtletaBoulderService {
 
     List<AtletaBoulderDTO> getAllBouldersFromAtleta(UUID atletaId);
 

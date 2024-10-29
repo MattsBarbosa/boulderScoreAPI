@@ -1,9 +1,9 @@
 package com.mattsbarbosa.boulderScoreAPI.controllers;
 
 import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
-import com.mattsbarbosa.boulderScoreAPI.services.AtletaService;
+import com.mattsbarbosa.boulderScoreAPI.services.IAtletaService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,36 +14,35 @@ import java.util.UUID;
 @CrossOrigin("*")
 @AllArgsConstructor
 @RestController
-@Slf4j
 @RequestMapping("/api/atletas")
 public class AtletaController {
 
-    private final AtletaService atletaService;
+    private final IAtletaService AtletaService;
 
     @PostMapping
-    public ResponseEntity<AtletaDTO> saveAtleta(@RequestBody AtletaDTO atletaDto){
-        return new ResponseEntity<>(atletaService.saveAtleta(atletaDto), HttpStatus.CREATED);
+    public ResponseEntity<AtletaDTO> saveAtleta(@Valid @RequestBody AtletaDTO atletaDto){
+        return new ResponseEntity<>(AtletaService.saveAtleta(atletaDto), HttpStatus.CREATED);
     }
 
     @GetMapping("{id}")
     public ResponseEntity<AtletaDTO> getAtletaById(@PathVariable("id") UUID atletaId){
-        return ResponseEntity.ok(atletaService.getAtletaById(atletaId));
+        return ResponseEntity.ok(AtletaService.getAtletaById(atletaId));
     }
 
     @GetMapping
     public ResponseEntity<List<AtletaDTO>> getAllAtletas(){
-        return ResponseEntity.ok(atletaService.getAllAtletas());
+        return ResponseEntity.ok(AtletaService.getAllAtletas());
     }
 
     @PutMapping("{id}")
     public ResponseEntity<AtletaDTO> updateAtleta(@PathVariable("id") UUID atletaId,
-                                                     @RequestBody AtletaDTO atletaAtualizado){
-        return ResponseEntity.ok(atletaService.updateAtleta(atletaId, atletaAtualizado));
+                                                     @Valid @RequestBody AtletaDTO atletaAtualizado){
+        return ResponseEntity.ok(AtletaService.updateAtleta(atletaId, atletaAtualizado));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteAtleta(@PathVariable("id") UUID atletaId){
-        atletaService.deleteAtleta(atletaId);
+        AtletaService.deleteAtleta(atletaId);
         return ResponseEntity.ok("Atleta deletado com sucesso");
     }
 }

@@ -1,11 +1,10 @@
 package com.mattsbarbosa.boulderScoreAPI.services.impl;
 
 import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
-import com.mattsbarbosa.boulderScoreAPI.entities.Atleta;
-import com.mattsbarbosa.boulderScoreAPI.exception.ResourceNotFoundException;
-import com.mattsbarbosa.boulderScoreAPI.mappers.CompetitionMapper;
+import com.mattsbarbosa.boulderScoreAPI.exception.CustomResourceNotFoundException;
 import com.mattsbarbosa.boulderScoreAPI.repositories.AtletaRepository;
-import com.mattsbarbosa.boulderScoreAPI.services.AtletaService;
+import com.mattsbarbosa.boulderScoreAPI.services.BaseService;
+import com.mattsbarbosa.boulderScoreAPI.services.IAtletaService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,63 +15,50 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class AtletaServiceImpl implements AtletaService {
+public class AtletaServiceImpl extends BaseService<AtletaDTO> implements IAtletaService {
 
     private final AtletaRepository atletaRepository;
-    private final CompetitionMapper competitionMapper;
 
     @Override
     @Transactional
     public AtletaDTO saveAtleta(AtletaDTO atletaDTO) {
-
-        Atleta atleta = new Atleta();
-        atleta.setNome(atletaDTO.getNome());
-        atleta.setNumero(atletaDTO.getNumero());
-        atleta.setCategoria(atletaDTO.getCategoria());
-        atleta.setPontuacaoTotal(atletaDTO.getPontuacaoTotal());
-
-        Atleta atletaSalvo = atletaRepository.save(atleta);
-        return competitionMapper.toAtletaDTO(atletaSalvo);
+        validateDto(atletaDTO);
+        return myMapper.toAtletaDTO(atletaRepository.save(myMapper.toAtletaEntity(atletaDTO)));
     }
 
     @Override
     public AtletaDTO getAtletaById(UUID atletaId) {
-        Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
-
-        return competitionMapper.toAtletaDTO(atleta);
+        return atletaRepository.findById(atletaId)
+                .map(myMapper::toAtletaDTO)
+                .orElseThrow(() -> new CustomResourceNotFoundException(
+                        "Atleta não encontrado com o id: " + atletaId));
     }
 
     @Override
     public List<AtletaDTO> getAllAtletas() {
         return atletaRepository.findAll()
                 .stream()
-                .map(competitionMapper::toAtletaDTO)
+                .map(myMapper::toAtletaDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public AtletaDTO updateAtleta(UUID atletaId, AtletaDTO atletaAtualizado) {
-        Atleta atleta = atletaRepository.findById(atletaId)
-                .orElseThrow(() -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
-
-        atleta.setNome(atletaAtualizado.getNome());
-        atleta.setNumero(atletaAtualizado.getNumero());
-        atleta.setCategoria(atletaAtualizado.getCategoria());
-        atleta.setPontuacaoTotal(atletaAtualizado.getPontuacaoTotal());
-
-        var atletaAtualizadoSalvo = atletaRepository.save(atleta);
-
-        return competitionMapper.toAtletaDTO(atletaAtualizadoSalvo);
+        validateDto(atletaAtualizado);
+        return atletaRepository.findById(atletaId)
+                .map(atleta -> {
+                    myMapper.updateAtletaFromDto(atletaAtualizado, atleta);
+                    return myMapper.toAtletaDTO(atletaRepository.save(atleta));
+                })
+                .orElseThrow(() -> new CustomResourceNotFoundException(
+                        "Atleta não encontrado com o id: " + atletaId));
     }
 
     @Override
     @Transactional
     public void deleteAtleta(UUID atletaId) {
-        Atleta atleta = atletaRepository.findById(atletaId).orElseThrow(
-                () -> new ResourceNotFoundException("Atleta não encontrado com o id: " + atletaId));
-
-        atletaRepository.deleteById(atleta.getId());
+        atletaRepository.deleteById(atletaId);
     }
+
 }

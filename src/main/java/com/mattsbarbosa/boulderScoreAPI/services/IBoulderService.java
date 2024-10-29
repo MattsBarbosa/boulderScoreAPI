@@ -5,7 +5,7 @@ import com.mattsbarbosa.boulderScoreAPI.dtos.BoulderDTO;
 import java.util.List;
 import java.util.UUID;
 
-public interface BoulderService {
+public interface IBoulderService {
 
     BoulderDTO saveBoulder(BoulderDTO boulderDTO);
 

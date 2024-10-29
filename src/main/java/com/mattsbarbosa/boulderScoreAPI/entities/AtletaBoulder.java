@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "atleta_boulder")
+@Table(name = "ATLETA_BOULDER")
 public class AtletaBoulder {
 
     @Id
@@ -28,16 +28,16 @@ public class AtletaBoulder {
     @JoinColumn(name = "boulder_id")
     private Boulder boulder;
 
-    @Column(name= "boulder_numero", nullable = false)
+    @Column(nullable = false)
     private Integer boulderNumero;
 
-    @Column(name = "tentativas", nullable = false)
+    @Column(nullable = false)
     private Integer tentativas = 0;
 
-    @Column(name = "pontuacao")
+    @Column(nullable = false)
     private Double pontuacao;
 
-    @Column(name = "encadenado", nullable = false)
+    @Column(nullable = false)
     private Boolean encadenado = false;
 
 }

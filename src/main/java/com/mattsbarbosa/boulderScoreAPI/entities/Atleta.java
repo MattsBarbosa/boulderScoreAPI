@@ -13,23 +13,23 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "TB_ATLETAS")
+@Table(name = "ATLETAS")
 public class Atleta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @Column(name = "nome")
+    @Column(nullable = false)
     private String nome;
 
-    @Column(name = "numero")
+    @Column(nullable = false, unique = true)
     private Integer numero;
 
-    @Column(name = "pontuacao_total", nullable = false)
+    @Column(nullable = false)
     private Double pontuacaoTotal = 0.0;
 
-    @Column(name = "categoria")
+    @Column(nullable = false)
     private String categoria;
 
     @OneToMany(mappedBy = "atleta", cascade = CascadeType.ALL, orphanRemoval = true)

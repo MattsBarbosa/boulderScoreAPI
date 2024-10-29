@@ -4,12 +4,12 @@ import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaBoulderDTO;
 import com.mattsbarbosa.boulderScoreAPI.entities.Atleta;
 import com.mattsbarbosa.boulderScoreAPI.entities.AtletaBoulder;
 import com.mattsbarbosa.boulderScoreAPI.entities.Boulder;
-import com.mattsbarbosa.boulderScoreAPI.exception.ResourceNotFoundException;
-import com.mattsbarbosa.boulderScoreAPI.mappers.CompetitionMapper;
+import com.mattsbarbosa.boulderScoreAPI.exception.CustomResourceNotFoundException;
+import com.mattsbarbosa.boulderScoreAPI.mappers.MyMapper;
 import com.mattsbarbosa.boulderScoreAPI.repositories.AtletaBoulderRepository;
 import com.mattsbarbosa.boulderScoreAPI.repositories.AtletaRepository;
 import com.mattsbarbosa.boulderScoreAPI.repositories.BoulderRepository;
-import com.mattsbarbosa.boulderScoreAPI.services.AtletaBoulderService;
+import com.mattsbarbosa.boulderScoreAPI.services.IAtletaBoulderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,60 +20,84 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class AtletaBoulderServiceImpl implements AtletaBoulderService {
+public class AtletaBoulderServiceImpl implements IAtletaBoulderService {
 
     private final AtletaBoulderRepository atletaBoulderRepository;
     private final AtletaRepository atletaRepository;
     private final BoulderRepository boulderRepository;
-    private final CompetitionMapper competitionMapper;
+    private final MyMapper myMapper;
 
     @Override
     public List<AtletaBoulderDTO> getAllBouldersFromAtleta(UUID atletaId) {
         return atletaBoulderRepository.findByAtletaId(atletaId).stream()
-                .map(competitionMapper::toAtletaBoulderDTO)
+                .map(myMapper::toAtletaBoulderDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
     public void recordAttempt(UUID atletaBoulderId) {
-        AtletaBoulder atletaBoulder = atletaBoulderRepository.findById(atletaBoulderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Relação Atleta Boulder não encontrada"));
-
-        atletaBoulder.setTentativas(atletaBoulder.getTentativas() + 1);
-        atletaBoulderRepository.save(atletaBoulder);
+        atletaBoulderRepository.findById(atletaBoulderId)
+                .map(atletaBoulder -> {
+                    atletaBoulder.setTentativas(atletaBoulder.getTentativas() + 1);
+                    return atletaBoulderRepository.save(atletaBoulder);
+                })
+                .orElseThrow(() -> new CustomResourceNotFoundException(
+                        "Relação Atleta Boulder não encontrada"));
     }
 
     @Override
     public Double calculateScore(Boulder boulder, Integer tries) {
-        if (tries == 1) {
-            return boulder.getPontuacaoPrimeiraTentativa();
-        }else if (tries == 2) {
-            return boulder.getPontuacaoSegundaTentativa();
-        }else {
-            return boulder.getPontuacaoPadrao();
+
+        if (tries < 1) {
+            throw new IllegalArgumentException("O número de tentativas deve ser maior que 0");
         }
+
+        return switch (tries) {
+            case 1 -> boulder.getPontuacaoPrimeiraTentativa();
+            case 2 -> boulder.getPontuacaoSegundaTentativa();
+            default -> boulder.getPontuacaoPadrao();
+        };
     }
 
     @Override
     @Transactional
     public void recordSend(UUID atletaBoulderId) {
-        AtletaBoulder atletaBoulder = atletaBoulderRepository.findById(atletaBoulderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Relação Atleta Boulder não encontrada"));
+        AtletaBoulder atletaBoulder = findAtletaBoulderById(atletaBoulderId);
+        Atleta atleta = findAtletaById(atletaBoulder.getAtleta().getId());
+        Boulder boulder = findBoulderById(atletaBoulder.getBoulder().getId());
 
-        Atleta atleta = atletaRepository.findById(atletaBoulder.getAtleta().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Atleta não encontrado"));
+        updateAtletaBoulder(atletaBoulder, boulder);
+        updateAtleta(atleta, atletaBoulder.getPontuacao());
+    }
 
-        Boulder boulder = boulderRepository.findById(atletaBoulder.getBoulder().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Boulder não encontrado"));
+    //Methods to use in recordSend
 
+    private AtletaBoulder findAtletaBoulderById(UUID atletaBoulderId) {
+        return atletaBoulderRepository.findById(atletaBoulderId)
+                .orElseThrow(() -> new CustomResourceNotFoundException(
+                        "Relação Atleta Boulder não encontrada"));
+    }
+
+    private Atleta findAtletaById(UUID atletaId) {
+        return atletaRepository.findById(atletaId)
+                .orElseThrow(() -> new CustomResourceNotFoundException("Atleta não encontrado"));
+    }
+
+    private Boulder findBoulderById(UUID boulderId) {
+        return boulderRepository.findById(boulderId)
+                .orElseThrow(() -> new CustomResourceNotFoundException("Boulder não encontrado"));
+    }
+
+    private void updateAtletaBoulder(AtletaBoulder atletaBoulder, Boulder boulder) {
         atletaBoulder.setTentativas(atletaBoulder.getTentativas() + 1);
         Double score = calculateScore(boulder, atletaBoulder.getTentativas());
-
         atletaBoulder.setEncadenado(true);
         atletaBoulder.setPontuacao(score);
         atletaBoulderRepository.save(atletaBoulder);
+    }
 
+    private void updateAtleta(Atleta atleta, Double score) {
         atleta.setPontuacaoTotal(atleta.getPontuacaoTotal() + score);
         atletaRepository.save(atleta);
     }

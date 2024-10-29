@@ -5,7 +5,7 @@ import com.mattsbarbosa.boulderScoreAPI.dtos.AtletaDTO;
 import java.util.List;
 import java.util.UUID;
 
-public interface AtletaService {
+public interface IAtletaService {
 
     AtletaDTO saveAtleta(AtletaDTO atletaDTO);
 
